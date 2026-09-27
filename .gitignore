@@ -22,3 +22,13 @@ logs
 .env
 .env.*
 !.env.example
+
+# Runtime data (generated at runtime, zero-database)
+data/
+public/uploads/
+
+# Vitest isolated test data
+.vitest-data
+
+# Vitest
+*.vitest-report.json

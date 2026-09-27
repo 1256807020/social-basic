@@ -5,12 +5,13 @@
  * - 已配置：写操作需正确 adminToken，读操作始终放行。
  */
 import { defineEventHandler, getMethod, createError } from 'h3'
+import type { H3Event } from 'h3'
 import { isAuthEnabled, verifyToken } from '../lib/auth'
 
 const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 const READ_METHODS = new Set(['GET', 'HEAD', 'OPTIONS'])
 
-export default defineEventHandler((event) => {
+export default defineEventHandler((event: H3Event) => {
   // 未启用：透明放行，核心能力零负担
   if (!isAuthEnabled()) return
 

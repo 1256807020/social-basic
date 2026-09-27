@@ -33,10 +33,10 @@ export function arrayToCsv(records: any[]): string {
 export function csvToArray(text: string): any[] {
   const rows = parseCsvRows(text)
   if (!rows.length) return []
-  const header = rows[0]
+  const header = rows[0]!
   const out: any[] = []
   for (let i = 1; i < rows.length; i++) {
-    const cells = rows[i]
+    const cells = rows[i]!
     if (cells.length === 1 && cells[0] === '') continue
     const obj: any = {}
     header.forEach((h, idx) => {

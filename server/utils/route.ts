@@ -4,7 +4,7 @@
  */
 import { getQuery, readBody, setResponseStatus } from 'h3'
 import type { H3Event } from 'h3'
-import { ApiResult, badRequest } from '../lib/response'
+import { type ApiResult, badRequest } from '../lib/response'
 
 /** URL query -> 普通对象（值多为 string） */
 export function toQuery(event: H3Event): Record<string, any> {

@@ -1,15 +1,22 @@
 <script setup lang="ts">
-defineProps<{ nodes: any[] }>()
+// 递归树节点：渲染 todo 经 ?tree=1 派生的嵌套结构（parentId → children）
+defineOptions({ name: 'TreeNode' })
+defineProps<{ node: any; depth?: number }>()
 </script>
 
 <template>
-  <ul class="ml-4 border-l border-gray-200 pl-3">
-    <li v-for="n in nodes" :key="n.id" class="py-1">
-      <span class="font-medium text-gray-800">{{ n.title ?? n.name }}</span>
-      <span v-if="n.parentId !== undefined" class="ml-2 text-xs text-gray-400"
-        >#{{ n.id }} / parent {{ n.parentId }}</span
-      >
-      <TreeNode v-if="n.children && n.children.length" :nodes="n.children" />
-    </li>
-  </ul>
+  <li>
+    <span :style="{ paddingLeft: (depth ?? 0) * 16 + 'px' }" class="inline-block">
+      <span class="text-gray-400">└</span> #{{ node.id }} {{ node.title }}
+      <span v-if="node.done"> ✅</span>
+    </span>
+    <ul v-if="node.children && node.children.length">
+      <TreeNode
+        v-for="c in node.children"
+        :key="c.id"
+        :node="c"
+        :depth="(depth ?? 0) + 1"
+      />
+    </ul>
+  </li>
 </template>

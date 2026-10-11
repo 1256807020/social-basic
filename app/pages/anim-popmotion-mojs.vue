@@ -5,8 +5,9 @@
 // 两者均走 cdnjs 的 UMD 构建（本环境 jsdelivr/unpkg 不可达），全局为 window.mojs / window.popmotion。
 useHead({
   script: [
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/mo-js/1.7.1/mo.umd.js' },
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/popmotion/11.0.5/popmotion.min.js' },
+    // mo-js 在模块加载时会访问 document.body，须放在 body 末尾（DOM 已存在）避免 appendChild 报 null
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/mo-js/1.7.1/mo.umd.js', tagPosition: 'bodyClose' },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/popmotion/11.0.5/popmotion.min.js', tagPosition: 'bodyClose' },
   ],
 })
 

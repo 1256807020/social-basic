@@ -66,6 +66,10 @@ onMounted(async () => {
 const marqueeItems = ['Vue', 'Nuxt', 'Motion', 'GSAP', 'Three.js', 'D3', 'Lottie', 'Swiper']
 // 每组重复 3 遍，确保「一组宽度 > 视口宽度」，循环时右边缘才不会露白
 const marqueeLoop = [...marqueeItems, ...marqueeItems, ...marqueeItems]
+
+// 速度控制：可经 props.speed 传入（秒/圈），缺省用滑块值
+const props = defineProps<{ speed?: number }>()
+const marqueeDuration = ref(props.speed ?? 30) // 越大越慢
 </script>
 
 <template>
@@ -87,9 +91,16 @@ const marqueeLoop = [...marqueeItems, ...marqueeItems, ...marqueeItems]
       <p class="mt-2 text-white/70">移动鼠标，高光跟随光标 —— React Bits「Spotlight Card」的 Vue 移植。</p>
     </section>
 
+    <!-- 速度控制：滑块实时调节跑马灯速度（秒/圈，越大越慢） -->
+    <section class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
+      <label class="shrink-0 text-sm text-white/70">速度（秒/圈）</label>
+      <input type="range" min="5" max="60" step="1" v-model.number="marqueeDuration" class="flex-1 accent-indigo-400" />
+      <span class="w-12 shrink-0 text-right font-mono text-white/80">{{ marqueeDuration }}s</span>
+    </section>
+
     <!-- Vue Bits 风格：跑马灯（双组无缝循环：平移 -50% = 一组宽度） -->
     <section class="overflow-hidden rounded-2xl border border-white/10 py-4">
-      <div class="marquee-track flex w-max">
+      <div class="marquee-track flex w-max" :style="{ animationDuration: marqueeDuration + 's' }">
         <div class="marquee-group flex shrink-0">
           <span v-for="(t, i) in marqueeLoop" :key="'a-' + i" class="pr-8 text-xl font-semibold text-white/80">{{ t }} ✦</span>
         </div>

@@ -85,20 +85,23 @@ const marqueeItems = ['Vue', 'Nuxt', 'Motion', 'GSAP', 'Three.js', 'D3', 'Lottie
       <p class="mt-2 text-white/70">移动鼠标，高光跟随光标 —— React Bits「Spotlight Card」的 Vue 移植。</p>
     </section>
 
-    <!-- Vue Bits 风格：跑马灯 -->
+    <!-- Vue Bits 风格：跑马灯（双组无缝循环：平移 -50% = 一组宽度） -->
     <section class="overflow-hidden rounded-2xl border border-white/10 py-4">
-      <div class="marquee flex w-max">
-        <span v-for="(t, i) in [...marqueeItems, ...marqueeItems]" :key="i" class="pr-8 text-xl font-semibold text-white/80">
-          {{ t }} ✦
-        </span>
+      <div class="marquee-track flex w-max">
+        <div class="marquee-group flex shrink-0">
+          <span v-for="t in marqueeItems" :key="'a-' + t" class="pr-8 text-xl font-semibold text-white/80">{{ t }} ✦</span>
+        </div>
+        <div class="marquee-group flex shrink-0" aria-hidden="true">
+          <span v-for="t in marqueeItems" :key="'b-' + t" class="pr-8 text-xl font-semibold text-white/80">{{ t }} ✦</span>
+        </div>
       </div>
     </section>
   </main>
 </template>
 
 <style scoped>
-.marquee {
-  animation: marquee 12s linear infinite;
+.marquee-track {
+  animation: marquee 14s linear infinite;
 }
 </style>
 

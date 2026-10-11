@@ -2,15 +2,11 @@
 // 【动画组合 7/9 · Popmotion + Mo.js】
 // 运动图形创意组合：Popmotion 提供物理动效（此处用 spring 弹性回弹），
 // Mo.js 生成自定义粒子爆发特效；适合高互动品牌创意站。点击球体观察两类特效叠加。
-// Popmotion 为 ESM，经 module 脚本注入 window.Popmotion；Mo.js 走 UMD 全局。
+// 两者均走 cdnjs 的 UMD 构建（本环境 jsdelivr/unpkg 不可达），全局为 window.mojs / window.popmotion。
 useHead({
   script: [
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/mo-js/1.5.4/mo.min.js' },
-    {
-      type: 'module',
-      innerHTML:
-        "import * as P from 'https://cdn.jsdelivr.net/npm/popmotion@11.0.5/+esm'; window.Popmotion = P;",
-    },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/mo-js/1.7.1/mo.umd.js' },
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/popmotion/11.0.5/popmotion.min.js' },
   ],
 })
 
@@ -32,7 +28,7 @@ function waitFor(getter: () => any, timeout = 8000) {
 
 onMounted(async () => {
   try {
-    const P: any = await waitFor(() => (window as any).Popmotion)
+    const P: any = await waitFor(() => (window as any).popmotion)
     const mojs: any = await waitFor(() => (window as any).mojs)
 
     const burst = new mojs.Burst({

@@ -87,8 +87,8 @@ const marqueeItems = ['Vue', 'Nuxt', 'Motion', 'GSAP', 'Three.js', 'D3', 'Lottie
 
     <!-- Vue Bits 风格：跑马灯 -->
     <section class="overflow-hidden rounded-2xl border border-white/10 py-4">
-      <div class="marquee flex w-max gap-8">
-        <span v-for="(t, i) in [...marqueeItems, ...marqueeItems]" :key="i" class="text-xl font-semibold text-white/80">
+      <div class="marquee flex w-max">
+        <span v-for="(t, i) in [...marqueeItems, ...marqueeItems]" :key="i" class="pr-8 text-xl font-semibold text-white/80">
           {{ t }} ✦
         </span>
       </div>
@@ -100,7 +100,10 @@ const marqueeItems = ['Vue', 'Nuxt', 'Motion', 'GSAP', 'Three.js', 'D3', 'Lottie
 .marquee {
   animation: marquee 12s linear infinite;
 }
-:global(@keyframes marquee) {
+</style>
+
+<style>
+@keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }

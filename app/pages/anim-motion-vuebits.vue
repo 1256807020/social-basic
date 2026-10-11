@@ -64,6 +64,8 @@ onMounted(async () => {
 })
 
 const marqueeItems = ['Vue', 'Nuxt', 'Motion', 'GSAP', 'Three.js', 'D3', 'Lottie', 'Swiper']
+// 每组重复 3 遍，确保「一组宽度 > 视口宽度」，循环时右边缘才不会露白
+const marqueeLoop = [...marqueeItems, ...marqueeItems, ...marqueeItems]
 </script>
 
 <template>
@@ -89,10 +91,10 @@ const marqueeItems = ['Vue', 'Nuxt', 'Motion', 'GSAP', 'Three.js', 'D3', 'Lottie
     <section class="overflow-hidden rounded-2xl border border-white/10 py-4">
       <div class="marquee-track flex w-max">
         <div class="marquee-group flex shrink-0">
-          <span v-for="t in marqueeItems" :key="'a-' + t" class="pr-8 text-xl font-semibold text-white/80">{{ t }} ✦</span>
+          <span v-for="(t, i) in marqueeLoop" :key="'a-' + i" class="pr-8 text-xl font-semibold text-white/80">{{ t }} ✦</span>
         </div>
         <div class="marquee-group flex shrink-0" aria-hidden="true">
-          <span v-for="t in marqueeItems" :key="'b-' + t" class="pr-8 text-xl font-semibold text-white/80">{{ t }} ✦</span>
+          <span v-for="(t, i) in marqueeLoop" :key="'b-' + i" class="pr-8 text-xl font-semibold text-white/80">{{ t }} ✦</span>
         </div>
       </div>
     </section>

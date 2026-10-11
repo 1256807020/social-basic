@@ -69,7 +69,7 @@ const marqueeLoop = [...marqueeItems, ...marqueeItems, ...marqueeItems]
 
 // 速度控制：可经 props.speed 传入（秒/圈），缺省用滑块值
 const props = defineProps<{ speed?: number }>()
-const marqueeDuration = ref(props.speed ?? 30) // 越大越慢
+const marqueeDuration = ref(props.speed ?? 50) // 越大越慢
 </script>
 
 <template>

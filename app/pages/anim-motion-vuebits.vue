@@ -4,24 +4,34 @@
 // 【是什么】Motion One = 框架无关的声明式动画引擎（animate(el, keyframes, options)），即 Framer Motion 的 vanilla 版；
 //          Vue Bits = React 生态"即拷即用"特效组件库（46.6K★），本仓库是 Vue 无法直接复用，故手写对等替代。
 // 【为什么】声明式动画 = 你只描述"起止状态 + 时长/缓动"，引擎用 WAAPI(合成线程)自动补间，比手写 rAF+lerp 省力且更流畅。
-// 【怎么用】ESM 经 module 脚本注入 window.Motion → onMounted 拿到后 M.animate(...) 跑入场/循环；鼠标跟随用原生 pointermove 写 CSS 变量。
-// 🔧 固定写法：CDN 全局无类型 → 最小类型 MotionApi + declare global Window + 泛型 waitFor<T> 杜绝 any（同 anim-aos-granim 范式）。
+// 【怎么用】动态 import() 从 CDN 拉 Motion（多镜像兜底，国内 jsdelivr 常被墙）→ onMounted 直接拿到 M.animate(...) 跑入场/循环；鼠标跟随用原生 pointermove 写 CSS 变量。
+// 🔧 固定写法：CDN 无类型 → 最小类型 MotionApi + 动态 import 多镜像兜底，杜绝 any（同 anim-aos-granim 范式）。
 // ↔ React：Framer Motion 的 <motion.div initial/animate> + React Bits 组件；Vue2 常用 @vueuse/motion 的 v-motion 指令。
 // 📌 实战定位：产品/落地页"高级感"特效（滚动入场、渐变流光、聚光灯、跑马灯），优先声明式引擎而非手写 rAF。
 // 🎬 同源异用：本页"声明式 + 时间驱动插值"心智 = Remotion 用 useCurrentFrame()+interpolate() 写视频的底层逻辑；
 //          Remotion 把每帧渲染成真实 MP4（离线产出视频资产，非浏览器实时播），React 全量实现见 social-start 高级分支。
 // ───────────────────────────────────────────────────────────
-useHead({
-  script: [
-    {
-      type: 'module',
-      innerHTML:
-        "import * as M from 'https://cdn.jsdelivr.net/npm/motion@11/+esm'; window.Motion = M;",
-    },
-  ],
-})
+// CDN 多镜像：jsdelivr 国内常被墙 → 依次 fallback 到 esm.run / unpkg，任一可达即用
+const MOTION_CDNS = [
+  'https://cdn.jsdelivr.net/npm/motion@11/+esm',
+  'https://esm.run/motion@11',
+  'https://unpkg.com/motion@11/+esm',
+]
 
-// CDN 全局的最小类型声明（避免 any）
+// 动态 import 带镜像兜底：避免单一 CDN（尤其 jsdelivr）被墙时直接 8s 超时；全失败才走 catch 优雅降级
+async function loadMotion(): Promise<MotionApi> {
+  let lastErr: unknown
+  for (const url of MOTION_CDNS) {
+    try {
+      return (await import(/* @vite-ignore */ url)) as MotionApi
+    } catch (e) {
+      lastErr = e
+    }
+  }
+  throw lastErr ?? new Error('全部 CDN 镜像均不可用')
+}
+
+// CDN 模块的最小类型声明（避免 any）
 interface MotionApi {
   animate: (
     element: Element,
@@ -30,36 +40,29 @@ interface MotionApi {
   ) => { finished: Promise<void>; play?: () => void; pause?: () => void }
 }
 
-declare global {
-  interface Window {
-    Motion?: MotionApi
-  }
-}
-
 const reveal = ref<HTMLElement | null>(null)
 const spotlight = ref<HTMLElement | null>(null)
 const gradient = ref<HTMLElement | null>(null)
 
-// 泛型轮询：等待 CDN 全局就绪；rAF 比 setInterval 省电、与渲染帧对齐
-function waitFor<T>(getter: () => T | undefined, timeout = 8000): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const start = Date.now()
-    const tick = () => {
-      const v = getter()
-      if (v !== undefined) return resolve(v)
-      if (Date.now() - start > timeout) return reject(new Error('库加载超时'))
-      requestAnimationFrame(tick)
-    }
-    tick()
-  })
-}
+// （waitFor 轮询已弃用：改用 loadMotion() 动态 import 多镜像兜底，见上方）
 
 // 速度控制：可经 props.speed 传入（秒/圈），缺省用滑块值
 const props = defineProps<{ speed?: number }>()
 
 onMounted(async () => {
+  // 聚光灯卡片：跟随鼠标移动径向高光（原生 pointermove 写 CSS 变量，不依赖 Motion，独立 setup 保证始终可用）
+  if (spotlight.value) {
+    const el = spotlight.value
+    el.addEventListener('pointermove', (e: PointerEvent) => {
+      const r = el.getBoundingClientRect()
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`)
+      el.style.setProperty('--my', `${e.clientY - r.top}px`)
+    })
+  }
+
+  // Motion 驱动的两个特效（入场淡入 / 渐变流动）；CDN 全挂则优雅降级，上面聚光灯不受影响
   try {
-    const M = await waitFor<MotionApi>(() => window.Motion)
+    const M = await loadMotion()
     // 1) 滚动入场（对应 React Bits 的 scroll reveal）
     if (reveal.value) {
       await M.animate(
@@ -76,18 +79,9 @@ onMounted(async () => {
         { duration: 3, repeat: Infinity, easing: 'linear' },
       )
     }
-    // 3) 聚光灯卡片：跟随鼠标移动径向高光（原生 pointermove 写 CSS 变量，无需动画库）
-    if (spotlight.value) {
-      const el = spotlight.value
-      el.addEventListener('pointermove', (e: PointerEvent) => {
-        const r = el.getBoundingClientRect()
-        el.style.setProperty('--mx', `${e.clientX - r.left}px`)
-        el.style.setProperty('--my', `${e.clientY - r.top}px`)
-      })
-    }
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e)
-    console.warn('Motion 加载失败', msg)
+    console.warn('Motion 加载失败（已优雅降级：跑马灯/聚光灯仍可用）', msg)
   }
 })
 

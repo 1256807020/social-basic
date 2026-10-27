@@ -9,6 +9,26 @@
 //    any 则彻底关闭类型检查。
 // ───────────────────────────────────────────────────────────
 
+// 🎯 任意 xxx.json 都能套用这套类型（三档，按需选用，都不要求后端配合）
+//
+// ① 零成本（不写任何资源类型）—— 直接用通用泛型：
+//      const res = await $fetch<ApiListResult<JsonRecord>>('/api/chat')
+//      // JsonRecord = Record<string, unknown>：字段随便读（读出来是 unknown，用前先收窄）
+//
+// ② 推荐（给本页真正用到的字段写个视图模型）—— 照 app/types/todo.ts 抄：
+//      // app/types/chat.ts
+//      import type { JsonRecord } from './api'
+//      export interface Chat extends JsonRecord {
+//        id: number
+//        content: string
+//      }
+//
+// ③ 组件内联（页面专用、不想多开文件）—— 直接在 defineProps 里写：
+//      defineProps<{ rows: Chat[] }>()
+//
+// 📌 三档都不要求后端配合：引擎不校验 schema，前端往 body 多塞字段后端照收。
+// ───────────────────────────────────────────────────────────
+
 /** 任意 JSON 记录：引擎动态字段的兜底类型 */
 export type JsonRecord = Record<string, unknown>
 

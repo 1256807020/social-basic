@@ -15,6 +15,12 @@ const boxRef = ref<HTMLElement | null>(null)
 const log = ref('还没点按钮')
 
 // nextTick：DOM 更新（重渲染）完成后才执行回调
+// （boxRef + nextTick）—— 不只是"取执行后结果"，核心是"取结果的时机"
+// 它不是单纯拿结果，而是演示 nextTick 解决"读早了"的问题：
+// 你改了会影响 DOM 的东西（这里直接改了 textContent，文字变长）；
+// 如果不等渲染刷新就去读 offsetWidth/offsetHeight，可能拿到旧尺寸；
+// await nextTick() 等 Vue 把挂起的 DOM 更新 flush 完，再去读，才拿到最新宽高。
+// 教的是：改完数据后要立刻读 DOM 布局，必须包 nextTick。它读的是"DOM 更新后的测量结果"。
 async function measure() {
   // 先改文本，再等 DOM 刷新，最后量宽高 —— 否则拿到的是旧值
   if (boxRef.value) boxRef.value.textContent = '已更新：请重新测量我'

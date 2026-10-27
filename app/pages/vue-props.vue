@@ -7,23 +7,19 @@
 // 📌 实战定位：props 单向数据流【基础必学】；父子传值的唯一正规通道。
 // 🧭 学习模式：🔧固定写法=defineProps&lt;Props&gt;()；👉=练习点（已填）；文末 <details> 有 Vue2/Vue3/React 三向对照。
 // ───────────────────────────────────────────────────────────
-import { defineComponent, h } from 'vue'
-
-// 🔧 固定写法：子组件用 defineProps 声明入参（这里用 defineComponent 内联演示）
-const Card = defineComponent({
-  props: { title: { type: String, required: true }, count: { type: Number, default: 0 } },
-  setup(p) {
-    // 👉 练习：给 Card 加一个 color prop 控制文字颜色
-    return () => h('div', { class: 'rounded border p-2 text-sm' }, `${p.title} · 计数 ${p.count}`)
-  },
-})
+// 🔧 固定写法：子组件 PropsCard 用 <script setup> 的 defineProps 声明入参（见 app/components/PropsCard.vue）
+//    Nuxt 会自动从 app/components 注册组件；这里显式 import 便于理解，不写也能用 <PropsCard />。
+import PropsCard from '~/components/PropsCard.vue'
 </script>
 
 <template>
   <main class="mx-auto max-w-2xl space-y-4 p-6">
     <h1 class="text-2xl font-bold">父→子 props · pages/vue-props.vue</h1>
-    <Card title="来自父组件的标题" :count="3" />
-    <Card title="另一张卡" :count="7" />
+    <!-- 👉 父组件向子组件 PropsCard 传 props：必填 title + 可选 count/color/user -->
+    <PropsCard title="来自父组件的标题" :count="3" :user="{ name: '小明', age: 18 }" color="text-blue-600" />
+    <PropsCard title="另一张卡" :count="7" color="text-green-600" />
+    <!-- 📌 不传可选 prop 时，走 withDefaults 里的默认值；user 用工厂函数给的『匿名/0岁』 -->
+    <PropsCard title="缺省默认值" />
 
     <details class="mt-6 rounded border p-3 text-sm">
       <summary class="cursor-pointer font-semibold">📚 Vue2 / Vue3 / React 三向对照 & 本项目小结</summary>

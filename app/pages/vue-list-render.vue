@@ -81,10 +81,11 @@ onMounted(() => load())
     <ul class="space-y-1 text-sm">
       <!-- 🔧 固定写法：v-for 必须 :key（用稳定 id，勿用 index）；v-if 已提前到 computed，这里只遍历 -->
       <li v-for="f in displayList" :key="f.id" class="flex items-center gap-2 border-b py-1">
-        <button class="text-base" :title="f.hot ? '取消热门' : '标为热门'" @click="toggleHot(f)">
-          <span v-if="f.hot" class="text-red-500">🔥</span>
-          <span v-else class="text-gray-300">·</span>
-        </button>
+        <!-- 👉 练习点：是否热门 = 复选框（改 → PATCH /api/fruit/:id 翻转 hot），像后台表格的「是否热门」列 -->
+        <label class="flex items-center gap-1 text-xs text-gray-600">
+          <input type="checkbox" :checked="!!f.hot" class="accent-red-500" @change="toggleHot(f)" />
+          热门
+        </label>
         <span class="flex-1">#{{ f.id }} {{ f.name }}</span>
         <!-- 👉 练习点：删除 —— DELETE /api/fruit/:id -->
         <button class="text-xs text-red-500" @click="removeFruit(f.id)">删除</button>

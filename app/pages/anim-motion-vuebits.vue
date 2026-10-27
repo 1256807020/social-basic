@@ -8,6 +8,8 @@
 // 🔧 固定写法：CDN 全局无类型 → 最小类型 MotionApi + declare global Window + 泛型 waitFor<T> 杜绝 any（同 anim-aos-granim 范式）。
 // ↔ React：Framer Motion 的 <motion.div initial/animate> + React Bits 组件；Vue2 常用 @vueuse/motion 的 v-motion 指令。
 // 📌 实战定位：产品/落地页"高级感"特效（滚动入场、渐变流光、聚光灯、跑马灯），优先声明式引擎而非手写 rAF。
+// 🎬 同源异用：本页"声明式 + 时间驱动插值"心智 = Remotion 用 useCurrentFrame()+interpolate() 写视频的底层逻辑；
+//          Remotion 把每帧渲染成真实 MP4（离线产出视频资产，非浏览器实时播），React 全量实现见 social-start 高级分支。
 // ───────────────────────────────────────────────────────────
 useHead({
   script: [
@@ -150,20 +152,20 @@ const marqueeDuration = ref(props.speed ?? 50) // 越大越慢
           <tr class="border-b border-white/20"><td class="px-2 py-1">鼠标跟随</td><td class="px-2 py-1" colspan="3">原生 pointermove 写 CSS 变量（与框架无关，本页做法）</td></tr>
         </tbody>
       </table>
-      <p class="mt-2 text-white/70">📝 小结：Motion One / Framer Motion 都是"描述起止状态、引擎自动补间"的声明式动画，底层走 WAAPI（合成线程，比手写 rAF 流畅）；Vue Bits 的特效（聚光灯/跑马灯）在 Vue 里手写等价组件即可，不必强求同库。</p>
+      <p class="mt-2 text-white/70">📝 小结：Motion One / Framer Motion 都是"描述起止状态、引擎自动补间"的声明式动画，底层走 WAAPI（合成线程，比手写 rAF 流畅）；Vue Bits 的特效（聚光灯/跑马灯）在 Vue 里手写等价组件即可，不必强求同库；同源的还有 Remotion（React 框架）：核心 useCurrentFrame()+interpolate() 正是本页"时间驱动插值"的心智，只是渲染目标是视频帧→编码成 MP4，用于自媒体/个性化视频规模化生产（React 侧全量教学在 social-start 高级分支）。</p>
     </details>
   </main>
 </template>
 
 <style scoped>
 .marquee-track {
-  animation: marquee 14s linear infinite;
+  animation: vuemarquee 14s linear infinite;
 }
 </style>
 
 <style>
 /* keyframes 必须放全局 <style>（非 scoped）：scoped 会给 @keyframes 名加 hash，下方 translateX(-50%) 引用不到 */
-@keyframes marquee {
+@keyframes vuemarquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }

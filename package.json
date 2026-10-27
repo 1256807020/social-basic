@@ -8,7 +8,8 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json && vue-tsc --noEmit -p tests/tsconfig.json"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -19,7 +20,19 @@
     "tailwind-merge": "^3.7.0",
     "vue": "^3.5.43",
     "vue-router": "^5.3.1",
+<<<<<<< HEAD
     "vue-i18n": "^10.0.5"
+=======
+    "@tresjs/core": "^4.3.0",
+    "@vee-validate/zod": "^4.13.0",
+    "@vueuse/core": "^11.3.0",
+    "@vueuse/motion": "^3.0.3",
+    "@xstate/vue": "^3.1.0",
+    "three": "^0.169.0",
+    "vee-validate": "^4.13.0",
+    "xstate": "^5.18.0",
+    "zod": "^3.23.8"
+>>>>>>> basic
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

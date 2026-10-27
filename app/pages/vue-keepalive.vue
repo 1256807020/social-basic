@@ -7,15 +7,11 @@
 // 📌 实战定位：组件缓存【了解即可·进阶】；Tab 切换保表单、保滚动位置常用。
 // 🧭 学习模式：🔧固定写法=&lt;KeepAlive&gt;&lt;component :is="..."&gt;；👉=练习点（已填）；文末 <details> 有 Vue2/Vue3/React 三向对照。
 // ───────────────────────────────────────────────────────────
-import { ref, defineComponent, h } from 'vue'
+import { ref } from 'vue'
+// 🔧 固定写法：面板抽成独立 .vue 文件（见 app/components/PanelA.vue / PanelB.vue）
+import A from '~/components/PanelA.vue'
+import B from '~/components/PanelB.vue'
 
-const A = defineComponent({
-  setup() {
-    const v = ref('')
-    return () => h('div', `面板A（输入框内容会被缓存）：${v.value}`)
-  },
-})
-const B = defineComponent({ setup: () => () => h('div', '面板B（无状态）') })
 const tab = ref<'A' | 'B'>('A')
 // 👉 练习：在两个面板各放一个输入框，切走再切回，看哪个保住了内容
 </script>

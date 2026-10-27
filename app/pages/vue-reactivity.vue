@@ -7,7 +7,7 @@
 // 📌 实战定位：响应式【基础必学】；ref 管基本类型、reactive 管对象、computed 管派生。
 // 🧭 学习模式：🔧固定写法=ref(0)/reactive({})/computed(()=>...)；👉=练习点（已填）；文末 <details> 有 Vue2/Vue3/React 三向对照。
 // ───────────────────────────────────────────────────────────
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, toRefs } from 'vue'
 
 const count = ref(1)
 const user = reactive({ name: 'Tom', age: 18 })
@@ -18,6 +18,14 @@ function grow() {
   count.value++
   user.age++
 }
+
+// 🔧 生产坑演示：reactive 直接解构会丢响应性，toRefs 能保留
+const person = reactive({ name: 'Tom', age: 18 })
+const { age } = person                  // ❌ 解构拿到的是「值的快照」，后续不再跟源对象联动
+const { age: ageRef } = toRefs(person)  // ✅ toRefs 把每个属性包成独立 Ref，保留响应性
+function bumpPersonAge() {
+  person.age++ // 只改源对象；用来观察三条显示的差异
+}
 </script>
 
 <template>
@@ -26,6 +34,18 @@ function grow() {
     <p>count：{{ count }} → double：{{ double }}</p>
     <p>user：{{ user.name }} / {{ user.age }} 岁</p>
     <button class="rounded bg-blue-600 px-3 py-1 text-white" @click="grow">count+1 &amp; age+1</button>
+
+    <!-- 👉 演示：reactive 解构丢失响应性 vs toRefs 保留（点上面的按钮看差异） -->
+    <section class="rounded border p-4">
+      <h2 class="font-semibold">reactive 解构 vs toRefs（点「person.age + 1」看差异）</h2>
+      <button class="mt-2 rounded bg-purple-600 px-3 py-1 text-white" @click="bumpPersonAge">person.age + 1</button>
+      <ul class="mt-2 space-y-1 text-sm">
+        <li>源对象 person.age（响应式）：<b class="text-green-700">{{ person.age }}</b></li>
+        <li>解构出的 age（❌ 丢响应性，停在快照）：<b class="text-red-600">{{ age }}</b></li>
+        <li>toRefs 的 ageRef（✅ 响应式）：<b class="text-green-700">{{ ageRef }}</b></li>
+      </ul>
+      <p class="mt-2 text-xs text-gray-500">点 +1 后：person.age 与 ageRef 一起变，解构的 age 永远是初次快照 → 生产里直接解构 reactive 会静默失效；改用 toRefs，或干脆用 ref 包对象。</p>
+    </section>
 
     <details class="mt-6 rounded border p-3 text-sm">
       <summary class="cursor-pointer font-semibold">📚 Vue2 / Vue3 / React 三向对照 & 本项目小结</summary>

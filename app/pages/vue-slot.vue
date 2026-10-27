@@ -7,29 +7,10 @@
 // 📌 实战定位：插槽是「组件封装」的核心【基础必学】；布局组件、列表项自定义、UI 库都离不开它。
 // 🧭 学习模式：🔧固定写法=<slot> / <slot name> / <Comp #x="p">；👉=练习点（已填）；文末 <details> 有三向对照。
 // ───────────────────────────────────────────────────────────
-import { defineComponent } from 'vue'
-
-// 🔧 固定写法：用 template 字符串定义子组件（演示用；正式项目建议拆成独立 .vue 文件）
-// 具名插槽：header / 默认 / footer
-const Card = defineComponent({
-  template: `
-    <div class="rounded border p-4">
-      <header class="mb-2 font-bold text-blue-700"><slot name="header">默认标题</slot></header>
-      <main class="text-sm"><slot>默认内容</slot></main>
-      <footer class="mt-2 text-xs text-gray-400"><slot name="footer">默认页脚</slot></footer>
-    </div>`,
-})
-
-// 作用域插槽：把子组件内部的数据"反向"传给父组件的插槽
-const UserCard = defineComponent({
-  props: {
-    user: { type: Object as () => { name: string; role: string }, required: true },
-  },
-  template: `
-    <div class="rounded border p-3">
-      <slot :user="user" />
-    </div>`,
-})
+// 🔧 固定写法：插槽容器抽成独立 .vue 文件（见 app/components/SlotCard.vue / SlotUserCard.vue）
+//    生产项目不用 defineComponent({ template: '...' })——那依赖运行时编译器，产物大且丢类型。
+import Card from '~/components/SlotCard.vue'
+import UserCard from '~/components/SlotUserCard.vue'
 
 // 父组件自己用的数据
 const me = { name: '张三', role: '管理员' }

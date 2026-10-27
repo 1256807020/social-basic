@@ -8,6 +8,9 @@
 // 🧭 学习模式：🔧固定写法=defineEmits + emit()；👉=练习点（已填）；文末 <details> 有 Vue2/Vue3/React 三向对照。
 // ───────────────────────────────────────────────────────────
 import { ref, defineComponent, h } from 'vue'
+// 🔧 现代写法：独立子组件 EmitCounter 用 <script setup> 的 defineEmits（见 app/components/EmitCounter.vue）
+//    Nuxt 自动从 app/components 注册，这里显式 import 便于理解。
+import EmitCounter from '~/components/EmitCounter.vue'
 
 const msg = ref('（未收到子事件）')
 
@@ -22,13 +25,24 @@ const EmitBtn = defineComponent({
 function onPing(t: number) {
   msg.value = '收到子事件 @ ' + new Date(t).toLocaleTimeString()
 }
+
+// 👉 独立组件写法：父监听 EmitCounter 抛出的 ping，收到子组件内部计数
+const cntMsg = ref('（未收到计数）')
+function onCount(n: number) {
+  cntMsg.value = '子组件计数到 ' + n
+}
 </script>
 
 <template>
   <main class="mx-auto max-w-2xl space-y-4 p-6">
     <h1 class="text-2xl font-bold">子→父 emit 事件 · pages/vue-events.vue</h1>
+    <!-- 写法一：内联 defineComponent（Options 风格 emits 声明） -->
     <EmitBtn @ping="onPing" />
     <p class="text-sm">{{ msg }}</p>
+
+    <!-- 写法二：独立组件 <script setup> + 类型化 defineEmits（现代写法） -->
+    <EmitCounter @ping="onCount" />
+    <p class="text-sm">{{ cntMsg }}</p>
 
     <details class="mt-6 rounded border p-3 text-sm">
       <summary class="cursor-pointer font-semibold">📚 Vue2 / Vue3 / React 三向对照 & 本项目小结</summary>

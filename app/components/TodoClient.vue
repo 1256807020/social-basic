@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import type { Todo } from '~/types/todo'
+
 // 【B 版 · 客户端子组件】负责"增 / 改 / 删"等用户操作。
 // 思路：本组件只管发请求调接口，改完调用 emit('refresh')，
 // 让父级服务端组件（pages/todos.vue）通过 useAsyncData 的 refresh 重新取数。
+// 📌 生产写法：props 用真实类型（Todo[]），不用 any —— 模板里写错字段名立刻报错。
 const props = defineProps<{
-  initial: any[]
+  initial: Todo[]
   page: number
   totalPages: number
   total: number
@@ -21,7 +24,7 @@ async function add(e: Event) {
   emit('refresh')
 }
 // 改状态（PUT /api/todo/:id，增量合并）
-async function toggle(t: any) {
+async function toggle(t: Todo) {
   await $fetch(`/api/todo/${t.id}`, { method: 'PATCH', body: { done: !t.done } })
   emit('refresh')
 }

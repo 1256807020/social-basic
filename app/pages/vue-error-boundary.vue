@@ -7,23 +7,15 @@
 // 📌 实战定位：错误隔离【了解即可·进阶】；单个组件崩了不影响整页。
 // 🧭 学习模式：🔧固定写法=onErrorCaptured((err) => { 记录; return false })；👉=练习点（已填）；文末 <details> 有 Vue2/Vue3/React 三向对照。
 // ───────────────────────────────────────────────────────────
-import { ref, onErrorCaptured, defineComponent, h } from 'vue'
+import { ref, onErrorCaptured } from 'vue'
+// 🔧 固定写法：子组件抽成独立 .vue 文件（见 app/components/Bomber.vue），生产项目不内联定义组件
+import Bomber from '~/components/Bomber.vue'
 
 const errMsg = ref('')
 // 🔧 固定写法：捕获子孙组件抛出的错误
 onErrorCaptured((err) => {
   errMsg.value = (err as Error).message
   return false // 阻止继续向上冒泡
-})
-
-// 故意抛错的子组件（点按钮触发）
-const Bomber = defineComponent({
-  setup() {
-    return () => h('button', {
-      class: 'rounded bg-red-600 px-3 py-1 text-white',
-      onClick: () => { throw new Error('子组件爆炸了 💥') },
-    }, '点我抛错')
-  },
 })
 </script>
 

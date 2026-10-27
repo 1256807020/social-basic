@@ -31,7 +31,9 @@ const PNG = Buffer.from(
 
 function multipart(file: Buffer, name = 'px.png') {
   const form = new FormData()
-  form.append('file', new Blob([file], { type: 'image/png' }), name)
+  // 新版 @types/node 让 Buffer 变为泛型 Buffer<ArrayBufferLike>，与 DOM 的 BlobPart(ArrayBuffer) 不匹配；
+  // 运行时 Buffer 本就是合法的 BlobPart（Uint8Array 子类），此处收窄类型即可。
+  form.append('file', new Blob([file as unknown as BlobPart], { type: 'image/png' }), name)
   return { method: 'POST', body: form } as RequestInit
 }
 

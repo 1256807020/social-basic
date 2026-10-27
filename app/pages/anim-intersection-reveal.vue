@@ -60,6 +60,37 @@ onMounted(() => {
 })
 // 组件销毁前断开观察者，否则 DOM 没了观察者还在，会内存泄漏。对应 React 的 useEffect cleanup。
 onBeforeUnmount(() => io?.disconnect())
+
+// ════════════════════════════════════════════════════════════════════
+// 📌 生产用途速查（面试 / 项目优化特色点 · 资深前端也常忽略的 IO 实战）
+// ════════════════════════════════════════════════════════════════════
+// ⚠️ 先分清：IO 只在「相交状态跨过阈值」那一刻触发一次（离散事件），平时不回调；
+//    而购物车「飞入」动画要的是每一帧实时坐标（元素持续移动）→ 那得用
+//    getBoundingClientRect + requestAnimationFrame。两类需求别搞混：
+//      · IO  → 「进来了 / 出去了」这种离散事件；
+//      · getBoundingClientRect → 「此刻它在哪」这种连续坐标。
+//
+// ① 无限滚动 / 信息流（最常见）：底部放个「哨兵元素」observe 它，相交就加载下一页。
+//    比 scroll 算位置干净太多，社交/电商 feed 全是这套。
+// ② 离屏暂停省资源：视频 / <canvas> / 复杂动画滚出视口就 pause()/cancelAnimationFrame，
+//    回来再恢复。对 CPU/电量/续航是实打实的优化——这是 IO 强项，scroll 手写得累死。
+// ③ 广告可见性计费（IAB 标准）：广告按「≥50% 面积可见且持续 ≥1 秒」才计一次曝光（防刷量）。
+//    用 threshold: [0.5] + 计时，广告 SDK 底层就是 IO。直接关联真金白银。
+// ④ 埋点 / 阅读深度：长文哪些章节真被看到、阅读进度到哪——给每个 section observe，曝光即上报。
+//    比 scroll 算章节边界稳。
+// ⑤ Scrollspy / 目录高亮：侧边 TOC 随滚动高亮当前章节，用 IO 替代 scroll 数学。
+// ⑥ 重组件延迟初始化：图表、地图、Twitter/YouTube 第三方嵌入，滚到跟前才挂载/初始化，
+//    避免首屏白付成本。
+// ⑦ 预取（quicklink 思路）：链接/卡片快进入视口（提前 200px）就预取下一页资源，点下去秒开。
+//
+// 🔧 隐藏杀器 rootMargin（在「还没真正进视口」就触发）：
+//    new IntersectionObserver(cb, { rootMargin: '200px' })   // 提前 200px 预加载
+//    new IntersectionObserver(cb, { rootMargin: '-40% 0px' }) // 进入中部 40% 才算「在读」
+// 这俩 scroll 手写都得自己加减偏移，IO 一行搞定。
+//
+// 🚀 进阶 v2 trackVisibility（广告防作弊 / 严格可见性）：
+//    new IntersectionObserver(cb, { threshold: [1], trackVisibility: true })
+//    能识别「被别的层遮挡 / opacity:0 也算不可见」——连很多老手写广告的都不知道。
 </script>
 
 <template>

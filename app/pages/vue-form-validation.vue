@@ -1,7 +1,12 @@
 <script setup lang="ts">
-// 【Vue3 能力 · 表单校验 + 动效（VeeValidate + Zod）】
-// VeeValidate 管「校验流程/绑定」，Zod 管「校验规则」，
-// 二者用 @vee-validate/zod 的 toTypedSchema 桥接。错误时给输入框加抖动动画。
+// ───────────────────────────────────────────────────────────
+// 表单校验 + 动效（VeeValidate + Zod）
+// ① 视角：从 React 转 Vue3（或纯 Vue3 起步）；Vue 生态用 VeeValidate 取代 React Hook Form。
+// ② 实战定位：任何带输入框的后台表单都要校验，错误反馈+抖动动画是体验底线。
+// ③ 学习模式：🔧 固定写法 = VeeValidate 管流程、Zod 管规则，toTypedSchema 桥接；
+//          👉 练习点 = 把规则换成你自己的字段（手机号/用户名）。
+// 📌 注意：VeeValidate 与 Zod 职责分离——前者绑定/提交流程，后者纯规则，互不直接耦合。
+// ───────────────────────────────────────────────────────────
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
@@ -71,7 +76,21 @@ const onSubmit = handleSubmit((values) => {
 
       <pre v-if="submitted" class="mt-6 overflow-x-auto rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-300">{{ submitted }}</pre>
     </div>
-  </main>
+  <details class="mt-8 rounded border p-4 text-sm">
+    <summary class="cursor-pointer font-semibold">Vue2 / Vue3 / React 三向对照 + 小结</summary>
+    <table class="mt-2 w-full border-collapse text-left">
+      <thead><tr class="border-b">
+        <th class="px-2 py-1">维度</th><th class="px-2 py-1">Vue2 (Options)</th><th class="px-2 py-1">Vue3 (本页)</th><th class="px-2 py-1">React</th>
+      </tr></thead>
+      <tbody>
+        <tr class="border-b"><td class="px-2 py-1">校验库</td><td class="px-2 py-1">vee-validate v2 (mapFields)</td><td class="px-2 py-1">vee-validate v4 (useForm)</td><td class="px-2 py-1">react-hook-form + zod</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">规则</td><td class="px-2 py-1">自行写</td><td class="px-2 py-1">Zod via toTypedSchema</td><td class="px-2 py-1">zodResolver</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">字段绑定</td><td class="px-2 py-1">v-model + errors</td><td class="px-2 py-1">defineField</td><td class="px-2 py-1">register</td></tr>
+      </tbody>
+    </table>
+    <p class="mt-2 text-gray-400">📝 小结：Vue2 用 v2 的 mapFields，Vue3 用 useForm + defineField（组合式）；React 对应 react-hook-form。错误抖动用 CSS @keyframes（见本页 &lt;style scoped&gt;）。</p>
+  </details>
+</main>
 </template>
 
 <style scoped>

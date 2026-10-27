@@ -10,7 +10,8 @@
 import { ref } from 'vue'
 
 const open = ref(false)
-// 👉 练习：给弹窗加“点击遮罩关闭”
+// 👉 练习：点击遮罩关闭（点内层 dialog 不关闭 → 靠 @click.stop 阻止冒泡）
+const close = () => { open.value = false }
 </script>
 
 <template>
@@ -19,10 +20,10 @@ const open = ref(false)
     <button class="rounded bg-blue-600 px-3 py-1 text-white" @click="open = true">打开弹窗</button>
 
     <Teleport to="body">
-      <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-        <div class="rounded-lg bg-white p-6 shadow-lg">
+      <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click="close">
+        <div class="rounded-lg bg-white p-6 shadow-lg" @click.stop>
           <p>我被传送到 &lt;body&gt; 了，不受父级样式影响</p>
-          <button class="mt-3 rounded bg-gray-200 px-3 py-1" @click="open = false">关闭</button>
+          <button class="mt-3 rounded bg-gray-200 px-3 py-1" @click="close">关闭</button>
         </div>
       </div>
     </Teleport>

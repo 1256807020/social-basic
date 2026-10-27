@@ -1,7 +1,11 @@
 <script setup lang="ts">
 // 递归树节点：渲染 todo 经 ?tree=1 派生的嵌套结构（parentId → children）
+// 📌 生产写法：node 用递归类型 TodoNode（children 里还是 TodoNode），
+//    不用 any —— 递归类型是 TS 里很值得掌握的一个点。
+import type { TodoNode } from '~/types/todo'
+
 defineOptions({ name: 'TreeNode' })
-defineProps<{ node: any; depth?: number }>()
+defineProps<{ node: TodoNode; depth?: number }>()
 </script>
 
 <template>

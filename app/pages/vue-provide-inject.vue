@@ -12,6 +12,8 @@ import { ref, provide } from 'vue'
 // 🔧 固定写法：祖先 provide 一个响应式 ref
 const theme = ref('dark')
 provide('theme', theme)
+const app = ref("vue")
+provide('app', app)
 // 👉 练习（见 ThemeGrandChild.vue）：在「孙」组件里 inject 后改 theme.value，看祖先是否同步
 </script>
 

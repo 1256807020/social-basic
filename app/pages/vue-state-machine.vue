@@ -1,7 +1,12 @@
 <script setup lang="ts">
-// 【Vue3 能力 · 状态机（XState + @xstate/vue）】
-// 复杂交互的「状态」用状态机描述最清晰：红→绿→黄→红，永远合法。
-// XState 定义状态图，@xstate/vue 的 useMachine 把 state/send 接进 Vue 响应式。
+// ───────────────────────────────────────────────────────────
+// 状态机（XState + @xstate/vue）
+// ① 视角：从 React 转 Vue3（或纯 Vue3 起步）；XState 在两端用法几乎一致。
+// ② 实战定位：复杂交互的「合法状态流转」（红绿灯/订单/向导步骤）用状态机比 if/else 稳。
+// ③ 学习模式：🔧 固定写法 = createMachine 画状态图 + useMachine 接进响应式；
+//          👉 练习点 = 把红绿灯换成「订单状态机」（待付款→已付款→已发货）。
+// 📌 注意：非法跳转被 XState 直接忽略，不会抛错也不会进错状态——这是状态机最大的价值。
+// ───────────────────────────────────────────────────────────
 import { createMachine } from 'xstate'
 import { useMachine } from '@xstate/vue'
 
@@ -52,5 +57,19 @@ const { state, send } = useMachine(machine)
         比一堆 if/else 更不容易出 bug。把 NEXT 换成「定时器自动 send」即可变自动红绿灯。
       </p>
     </div>
-  </main>
+  <details class="mt-8 rounded border p-4 text-sm">
+    <summary class="cursor-pointer font-semibold">Vue2 / Vue3 / React 三向对照 + 小结</summary>
+    <table class="mt-2 w-full border-collapse text-left">
+      <thead><tr class="border-b">
+        <th class="px-2 py-1">维度</th><th class="px-2 py-1">Vue2 (Options)</th><th class="px-2 py-1">Vue3 (本页)</th><th class="px-2 py-1">React</th>
+      </tr></thead>
+      <tbody>
+        <tr class="border-b"><td class="px-2 py-1">状态机库</td><td class="px-2 py-1">xstate + @xstate/vue(老)</td><td class="px-2 py-1">xstate + @xstate/vue</td><td class="px-2 py-1">xstate + @xstate/react</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">接入响应式</td><td class="px-2 py-1">this.state / computed</td><td class="px-2 py-1">useMachine → state/send</td><td class="px-2 py-1">useMachine → state.send</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">读当前态</td><td class="px-2 py-1">this.current</td><td class="px-2 py-1">state.value / state.matches</td><td class="px-2 py-1">state.value / state.matches</td></tr>
+      </tbody>
+    </table>
+    <p class="mt-2 text-gray-400">📝 小结：Vue2/Vue3/React 三端都用 XState 同一套状态图，只是接入钩子不同（@xstate/vue vs @xstate/react）。状态图定义一次，UI 层只看 state.matches 高亮。</p>
+  </details>
+</main>
 </template>

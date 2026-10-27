@@ -1,7 +1,13 @@
 <script setup lang="ts">
-// 【Vue3 能力 · VueUse 高频 composables 合集】
-// 一个页面演示最常用的几个 VueUse 组合式函数，全部来自 @vueuse/core：
-// useDark / useStorage / useMouse / useFetch / useClipboard / useDebounceFn
+// ───────────────────────────────────────────────────────────
+// VueUse 高频 composables 合集（@vueuse/core）
+// ① 视角：从 React 转 Vue3（或纯 Vue3 起步）；VueUse ≈ React 的 ahooks 角色。
+// ② 实战定位：暗色/持久化/鼠标/请求/复制/防抖等高频副作用，用组合式函数一行接入。
+// ③ 学习模式：🔧 固定写法 = 从 @vueuse/core 取 useXxx，直接得到响应式 ref；
+//          👉 练习点 = 把 useFetch 换成你自己的接口，或加 useEventListener 监听 resize。
+// 📌 注意：VueUse 与 React 的 ahooks 一一对应（useDark↔useDark、useDebounceFn↔useDebounceFn），
+//    只是 Vue 端返回 ref、React 端返回 [value, fn] 元组。
+// ───────────────────────────────────────────────────────────
 import { useDark, useStorage, useMouse, useFetch, useClipboard, useDebounceFn } from '@vueuse/core'
 import { ref, computed } from 'vue'
 
@@ -77,5 +83,20 @@ const todoTitle = computed(() => (error.value ? '请求失败' : (data.value as 
         </section>
       </div>
     </div>
-  </main>
+  <details class="mt-8 rounded border p-4 text-sm">
+    <summary class="cursor-pointer font-semibold">Vue2 / Vue3 / React 三向对照 + 小结</summary>
+    <table class="mt-2 w-full border-collapse text-left">
+      <thead><tr class="border-b">
+        <th class="px-2 py-1">能力</th><th class="px-2 py-1">Vue2</th><th class="px-2 py-1">Vue3 (本页 VueUse)</th><th class="px-2 py-1">React (ahooks)</th>
+      </tr></thead>
+      <tbody>
+        <tr class="border-b"><td class="px-2 py-1">暗色</td><td class="px-2 py-1">手写 toggleClass</td><td class="px-2 py-1">useDark</td><td class="px-2 py-1">useDark（ahooks 无，用 state）</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">持久化</td><td class="px-2 py-1">localStorage + watch</td><td class="px-2 py-1">useStorage</td><td class="px-2 py-1">useLocalStorageState</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">请求</td><td class="px-2 py-1">axios + watch</td><td class="px-2 py-1">useFetch</td><td class="px-2 py-1">useRequest / useFetch（ahooks）</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">防抖</td><td class="px-2 py-1">lodash.debounce</td><td class="px-2 py-1">useDebounceFn</td><td class="px-2 py-1">useDebounceFn</td></tr>
+      </tbody>
+    </table>
+    <p class="mt-2 text-gray-400">📝 小结：VueUse 是 Vue 版的 ahooks——高频副作用一行接入，返回 ref。React 端多为 [value, fn] 元组，Vue 端直接 ref，心智略不同但能力对等。</p>
+  </details>
+</main>
 </template>

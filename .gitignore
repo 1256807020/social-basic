@@ -32,3 +32,7 @@ public/uploads/
 
 # Vitest
 *.vitest-report.json
+
+# Agent workspace / memory directory (real dir is .codebuddy; ignore it)
+.codebuddy
+.codebuddy/*

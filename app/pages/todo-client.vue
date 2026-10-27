@@ -2,7 +2,10 @@
 // 【A 版 · 客户端组件】背诵范本 · 路由 /todo-client
 // 特点：一个 .vue 文件内用 onMounted + $fetch 把"查 / 增 / 改 / 删"全包了，
 // 最直观，最适合初学 CRUD。所有数据交互都走接口 /api/todo，不直接读 data/*.json。
-const todos = ref<any[]>([])
+import type { Todo } from '~/types/todo'
+import type { ApiListResult } from '~/types/api'
+
+const todos = ref<Todo[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = 8
@@ -10,10 +13,13 @@ const title = ref('')
 const editing = ref<{ id: number; title: string } | null>(null)
 
 // 查（GET /api/todo）
+// 📌 生产写法：给 $fetch 传泛型参数，响应自带类型 —— 不用 `const x: any` 去断言。
 async function load(p: number) {
-  const data: any = await $fetch('/api/todo', { query: { page: p, pageSize, sort: '-id' } })
-  todos.value = data.data || []
-  total.value = data.total || 0
+  const res = await $fetch<ApiListResult<Todo>>('/api/todo', {
+    query: { page: p, pageSize, sort: '-id' },
+  })
+  todos.value = res.data || []
+  total.value = res.total || 0
   page.value = p
 }
 onMounted(() => load(1))
@@ -27,7 +33,7 @@ async function add(e: Event) {
   load(page.value)
 }
 // 改状态（PUT /api/todo/:id，增量合并）
-async function toggle(t: any) {
+async function toggle(t: Todo) {
   await $fetch(`/api/todo/${t.id}`, { method: 'PATCH', body: { done: !t.done } })
   load(page.value)
 }

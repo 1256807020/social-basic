@@ -9,6 +9,8 @@
 // ───────────────────────────────────────────────────────────
 import { onMounted, onBeforeUnmount, reactive, ref } from 'vue'
 
+// 要演示的 12 个区块数据。c 是 Tailwind 渐变类名（按 3 色循环）。
+// 注意：这里只是「数据」，真正的「是否该显示动画」由下面的 visible 标记驱动。
 const blocks = Array.from({ length: 12 }, (_, i) => ({
   id: i,
   title: `区块 ${i + 1}`,
@@ -16,25 +18,47 @@ const blocks = Array.from({ length: 12 }, (_, i) => ({
   c: ['from-sky-500 to-cyan-400', 'from-violet-500 to-fuchsia-400', 'from-amber-500 to-orange-400'][i % 3],
 }))
 
+// visible[id] = 该区块是否已「进入视口」。初始都不在，靠 IO 回调翻成 true。
+// 用 reactive 而不是 ref，是因为它是「以数字 id 为键的字典」，reactive 直接按 key 赋值即触发响应。
 const visible = reactive<Record<number, boolean>>({})
+// root 绑定到 <main ref="root">，用来在挂载后一次性抓取它内部所有带 data-id 的子元素去 observe。
 const root = ref<HTMLElement>()
 
+// IntersectionObserver 是浏览器原生 API（不用装任何库）：
+//   它异步地「监听一组元素相对于视口（或某个滚动容器）的相交情况」，
+//   当相交比例跨过你设的阈值（threshold）时，回调被触发一次。
+//   比监听 scroll 事件 + getBoundingClientRect 手动算性能好得多——它是浏览器底层批量算的，且不阻塞主线程。
 let io: IntersectionObserver | null = null
 onMounted(() => {
+  // 为什么在 onMounted 里建？因为 observe 需要真实 DOM 节点，挂载前 root.value 还是 undefined。
   io = new IntersectionObserver(
+    // ── 构造参数 1：回调函数 ──
+    // 浏览器不会每次滚动都调你，而是「相交状态发生变化时」批量把变化的元素打包成 entries 数组回调给你。
     (entries) => {
       entries.forEach((e) => {
+        // e.target：本次状态变化的那个 DOM 元素（我们 observe 的区块 div）。
+        // dataset.id：读 HTML 上的 data-id（模板里 :data-id="b.id" 写的），
+        //   用它把「哪个区块」映射回 visible[id]。dataset 自动把 data-xxx 转成驼峰 xxx。
         const id = Number((e.target as HTMLElement).dataset.id)
+        // e.isIntersecting：true = 元素现在和视口有交集（进来了）；false = 完全离开。
+        //   （还有 e.intersectionRatio 表示相交比例 0~1，但我们这里只用布尔就够了。）
         if (e.isIntersecting) {
-          visible[id] = true
-          io?.unobserve(e.target) // once：只播一次
+          visible[id] = true          // 翻标记 → 模板里 :class 切到「上移+不透明」，CSS 过渡播放入场。
+          io?.unobserve(e.target)     // once：播过一次就取消对该元素的监听，省性能、且离开不再回退。
         }
       })
     },
+    // ── 构造参数 2：选项 ──
+    // threshold: 0.25 表示「元素有 25% 面积进入视口」时才算相交、才触发回调。
+    //   0 = 刚露头就触发；1 = 完全进入才触发；也可以传数组 [0, 0.25, 1] 表示在多个比例点都回调。
+    //   （还有 root / rootMargin 可选：root 指定相对哪个容器判相交，默认视口；rootMargin 可外扩/内缩判定边界。）
     { threshold: 0.25 },
   )
+  // 抓取 root 内部所有 [data-id] 元素，逐个交给 io 监听。
+  // root.value? 是可选链（挂载正常情况下一定有）；forEach 里 io! 用非空断言（这里 io 刚 new 完必然存在）。
   root.value?.querySelectorAll('[data-id]').forEach((el) => io!.observe(el))
 })
+// 组件销毁前断开观察者，否则 DOM 没了观察者还在，会内存泄漏。对应 React 的 useEffect cleanup。
 onBeforeUnmount(() => io?.disconnect())
 </script>
 

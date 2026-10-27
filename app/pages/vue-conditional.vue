@@ -24,9 +24,15 @@ const tab = ref<'a' | 'b'>('a')
       <button class="rounded bg-blue-600 px-3 py-1 text-white" @click="loggedIn = !loggedIn">
         切换登录态（当前：{{ loggedIn ? '已登录' : '未登录' }}）
       </button>
+      <button class="rounded border px-3 py-1" @click="role = role === 'admin' ? 'user' : 'admin'">
+        切换角色（当前：{{ role }}）
+      </button>
       <div class="rounded border p-3 text-sm">
-        <!-- 👉 练习：把 role 也接进来判断显示管理员入口 -->
-        <p v-if="loggedIn">欢迎回来，已登录用户。</p>
+        <!-- 👉 练习落地：把 role 也接进登录块，组合条件 loggedIn && role==='admin' -->
+        <template v-if="loggedIn">
+          <p>欢迎回来，{{ role === 'admin' ? '管理员' : '普通用户' }}。</p>
+          <p v-if="role === 'admin'" class="mt-1 text-indigo-600">🔧 管理员入口（已接 role 判断显示）</p>
+        </template>
         <p v-else>请先登录。</p>
       </div>
       <!-- 多分支 -->

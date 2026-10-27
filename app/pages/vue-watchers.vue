@@ -16,10 +16,12 @@ const name = ref('Tom')
 const log = ref<string[]>([])
 
 // 🔧 固定写法：watch 侦听 name，cb 拿 (新值, 旧值)
+// watch(src, cb)：默认懒跑、给 (newVal, oldVal)、可控；immediate 决定要不要挂载也跑一次。
 watch(name, (n, o) => {
-  log.value.push(`watch: ${o} → ${n}`)
+  log.value.push(`watch: 新值${n} → 旧值${o}`)
 })
 // watchEffect：自动收集依赖（这里依赖 name），立即执行一次 + 变化重跑
+// watchEffect(fn)：挂载即跑 + 依赖变重跑，无 oldVal，写法最短；
 watchEffect(() => {
   log.value.push(`watchEffect 看到 name=${name.value}`)
 })

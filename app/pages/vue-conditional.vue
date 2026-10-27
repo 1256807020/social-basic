@@ -9,8 +9,12 @@
 import { ref } from 'vue'
 
 const loggedIn = ref(false)
+// 🔧 ref 的泛型 + 联合类型：ref<T>(initial) 的 <T> 指定「包裹值的类型」；'admin' | 'user' 是 TS 联合类型
+//   → 表示 role 只能是这两个字符串之一（写成 'admim' 会立刻红线报错，编译期就拦住非法值）。
+//   ↔ React 对照：等价于 const [role] = useState<'admin' | 'user'>('user') —— 你学 React 见过的就是这同一个 <T> 泛型语法。
 const role = ref<'admin' | 'user'>('user')
 const showByVShow = ref(true)
+// 同款写法：tab 也用联合类型锁死取值集合，配合下面的 v-if 做 tab 切换。
 const tab = ref<'a' | 'b'>('a')
 </script>
 

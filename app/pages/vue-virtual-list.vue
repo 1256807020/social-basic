@@ -1,7 +1,12 @@
 <script setup lang="ts">
-// 【Vue3 能力 · 虚拟列表 / 无限滚动（手写窗口化，零依赖）】
-// 渲染 10,000 行却只挂载「视口内 + 缓冲」的少量 DOM：
-// 用 scrollTop 算出应显示的起止索引，容器撑满总高度，列表用 transform 偏移。
+// ───────────────────────────────────────────────────────────
+// 虚拟列表 / 无限滚动（手写窗口化，零依赖）
+// ① 视角：从 React 转 Vue3（或纯 Vue3 起步）；虚拟列表心智两端一致（算窗口）。
+// ② 实战定位：万级列表/下拉无限滚动必须窗口化，否则 DOM 爆炸卡死。
+// ③ 学习模式：🔧 固定写法 = 容器撑总高 + 用 scrollTop 算 start/end + transform 偏移；
+//          👉 练习点 = 把 ITEM_H 改成动态高度（需测距缓存）。
+// 📌 注意：只挂载「视口 + 缓冲」少量节点；总高度由撑满的占位 div 提供，列表用 translateY 偏移。
+// ───────────────────────────────────────────────────────────
 const TOTAL = 10000
 const ITEM_H = 40
 const VIEWPORT_H = 420
@@ -51,5 +56,19 @@ function onScroll(e: Event) {
         </div>
       </div>
     </div>
-  </main>
+  <details class="mt-8 rounded border p-4 text-sm">
+    <summary class="cursor-pointer font-semibold">Vue2 / Vue3 / React 三向对照 + 小结</summary>
+    <table class="mt-2 w-full border-collapse text-left">
+      <thead><tr class="border-b">
+        <th class="px-2 py-1">维度</th><th class="px-2 py-1">Vue2 (Options)</th><th class="px-2 py-1">Vue3 (本页)</th><th class="px-2 py-1">React</th>
+      </tr></thead>
+      <tbody>
+        <tr class="border-b"><td class="px-2 py-1">思路</td><td class="px-2 py-1">同（算窗口）</td><td class="px-2 py-1">scrollTop→start/end</td><td class="px-2 py-1">同（scrollTop→start/end）</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">偏移</td><td class="px-2 py-1">style.transform</td><td class="px-2 py-1">:style translateY</td><td class="px-2 py-1">style={{transform}}</td></tr>
+        <tr class="border-b"><td class="px-2 py-1">现成库</td><td class="px-2 py-1">vue-virtual-scroller</td><td class="px-2 py-1">vue-virtual-scroller / @tanstack/vue-virtual</td><td class="px-2 py-1">react-window / @tanstack/react-virtual</td></tr>
+      </tbody>
+    </table>
+    <p class="mt-2 text-gray-400">📝 小结：手写虚拟列表核心是「撑总高 + 算窗口 + 偏移」三步，两端一致；生产直接上 vue-virtual-scroller / react-window 更稳。本页零依赖仅为讲清原理。</p>
+  </details>
+</main>
 </template>

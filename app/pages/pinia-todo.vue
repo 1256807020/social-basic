@@ -13,6 +13,8 @@ import { defineStore, createPinia, setActivePinia } from 'pinia'
 import { ref, computed, onMounted } from 'vue'
 import type { Todo } from '~/types/todo'
 import type { ApiListResult } from '~/types/api'
+// 显式导入 $fetch（ofetch），避免依赖 Nuxt auto-import 全局类型——IDE ts-plugin 更易解析，SSR 安全（本页调用全在 onMounted/事件内，纯客户端）
+import { $fetch } from 'ofetch'
 
 // 本页未装 @pinia/nuxt，手动建 pinia 供 demo；真实 Nuxt 项目装 @pinia/nuxt 后删这行即可。
 setActivePinia(createPinia())

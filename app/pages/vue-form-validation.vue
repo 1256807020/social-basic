@@ -6,24 +6,34 @@
 // ③ 学习模式：🔧 固定写法 = VeeValidate 管流程、Zod 管规则，toTypedSchema 桥接；
 //          👉 练习点 = 把规则换成你自己的字段（手机号/用户名）。
 // 📌 注意：VeeValidate 与 Zod 职责分离——前者绑定/提交流程，后者纯规则，互不直接耦合。
+// 📌 延伸：Zod 已从纯前端校验走向全栈——NestJS 等后端也用 zod 校验入参（详见文末「Zod 深入」）。
 // ───────────────────────────────────────────────────────────
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { z } from 'zod'
 import { ref } from 'vue'
 
-const schema = toTypedSchema(
-  z.object({
-    email: z.string().min(1, '邮箱必填').email('邮箱格式不正确'),
-    password: z.string().min(6, '密码至少 6 位').max(20, '密码最多 20 位'),
-  }),
-)
+// ── Zod 规则（纯规则层，与框架无关）──
+// 🔧 固定写法：z.object({ 字段: z.类型().约束().约束('报错信息') })，链式子 API 可读性强
+// 📌 Zod 已全栈化：原本是前端/TS 校验库，如今 NestJS 等后端也用它校验入参（nestjs-zod 等），
+//    前后端可共用同一套 schema；本页只演示「前端表单」这一种用法。
+const zodSchema = z.object({
+  email: z.string().min(1, '邮箱必填').email('邮箱格式不正确'),
+  password: z.string().min(6, '密码至少 6 位').max(20, '密码最多 20 位'),
+})
+// 📌 杀手锏：z.infer 从 schema 反推 TS 类型——运行时校验和静态类型同一份来源，前端类型不必手写、也不锁后端
+type FormValues = z.infer<typeof zodSchema>
+// 🔧 固定写法：toTypedSchema 把 Zod schema 桥接成 VeeValidate 认识的 schema
+const schema = toTypedSchema(zodSchema)
 
+// 🔧 固定写法：useForm 接收 validationSchema，吐出 errors / defineField / handleSubmit / isSubmitting
 const { handleSubmit, errors, defineField, isSubmitting } = useForm({ validationSchema: schema })
+// 🔧 固定写法：defineField 拆出「字段 ref + attrs」，attrs 用 v-bind 自动接校验触发（失焦/输入）
 const [email, emailAttrs] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
 
 const submitted = ref<string | null>(null)
+// 🔧 固定写法：handleSubmit 包一层回调——只有校验全过才进这里，values 已是 FormValues 推断类型
 const onSubmit = handleSubmit((values) => {
   submitted.value = JSON.stringify(values, null, 2)
 })
@@ -89,6 +99,17 @@ const onSubmit = handleSubmit((values) => {
       </tbody>
     </table>
     <p class="mt-2 text-gray-400">📝 小结：Vue2 用 v2 的 mapFields，Vue3 用 useForm + defineField（组合式）；React 对应 react-hook-form。错误抖动用 CSS @keyframes（见本页 &lt;style scoped&gt;）。</p>
+  </details>
+
+  <details class="mt-4 rounded border p-4 text-sm">
+    <summary class="cursor-pointer font-semibold">Zod 深入：为什么火 + 已全栈化</summary>
+    <ul class="mt-2 list-disc space-y-1 pl-5 text-gray-300">
+      <li><b>TS-first（类型即 schema）</b>：写一次 <code>z.object(...)</code>，用 <code>z.infer&lt;typeof schema&gt;</code> 反推出 TS 类型，运行时校验和静态类型同一份来源——前端类型不必手写、也不锁后端（见上 <code>FormValues</code>）。</li>
+      <li><b>组合子 API</b>：<code>z.string().min(1).email()</code> 链式可读；常用 <code>z.number()</code> / <code>z.boolean()</code> / <code>z.enum()</code> / <code>z.array()</code> / <code>z.object()</code>，复杂规则用 <code>.refine()</code> 自定义。</li>
+      <li><b>安全解析</b>：<code>schema.safeParse(data)</code> 返回 <code>{ success, data | error }</code> 而非抛异常，特别适合表单边界 / 接口入参校验。</li>
+      <li><b>↔ 跨框架通用</b>：核心 zod 语法三端一致；React 用 <code>zodResolver</code>（react-hook-form），Vue 用 <code>@vee-validate/zod</code> 的 <code>toTypedSchema</code>，Angular 也有对应 adapter——学一次，哪都能用。</li>
+      <li><b>已全栈化 🔥</b>：zod 原本是纯前端/TS 校验库，如今连 <b>NestJS</b> 这类后端框架都接 zod 校验入参（nestjs-zod 等社区方案，或直接用 zod 写 DTO Pipe），前后端共用同一套 schema，告别重复写 class-validator。一句话：学 zod = 一次学习，前后端通吃。</li>
+    </ul>
   </details>
 </main>
 </template>

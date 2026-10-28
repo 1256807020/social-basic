@@ -33,7 +33,7 @@
           <tr class="border-b"><td class="px-2 py-1">用途</td><td class="px-2 py-1">文档站</td><td class="px-2 py-1">文档/博客</td><td class="px-2 py-1">文档站</td></tr>
         </tbody>
       </table>
-      <p class="mt-2 text-gray-500">📝 小结：@nuxt/content 把 Markdown 当数据源渲染；本例 data 来自 content/intro.md，<ContentDoc path="/intro"> 自动取。</p>
+      <p class="mt-2 text-gray-500">📝 小结：@nuxt/content 把 Markdown 当数据源渲染；本例 data 来自 content/intro.md，<code>&lt;ContentDoc path="/intro" /&gt;</code> 自动取。</p>
     </details>
   </main>
 </template>

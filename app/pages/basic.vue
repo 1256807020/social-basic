@@ -8,39 +8,49 @@
 //   - 图片上传 + 静态访问（/api/image/*）、图形验证码（/api/captcha*）为独立进阶能力。
 import { ref, computed, onMounted } from 'vue'
 import TreeNode from '~/components/TreeNode.vue'
+import type { Todo, TodoNode, ImageItem, Captcha, CaptchaVerify } from '~/types/todo'
+import type { ApiListResult, ApiResult } from '~/types/api'
 
-const todos = ref<any[]>([])
+// 📌 生产写法：状态用真实类型（ref<Todo[]>），不用 any
+const todos = ref<Todo[]>([])
 const total = ref(0)
 const page = ref(1)
 const pageSize = 8
 const title = ref('')
 const parentId = ref('')
 const editing = ref<number | null>(null)
-const images = ref<any[]>([])
-const cap = ref<{ captchaId: string; image: string } | null>(null)
+const images = ref<ImageItem[]>([])
+const cap = ref<Captcha | null>(null)
 const code = ref('')
 const capMsg = ref('')
-const tree = ref<any[]>([])
+const tree = ref<TodoNode[]>([])
 
+// 📌 生产写法：给 $fetch 传泛型参数，响应自带类型 —— 不用 `const j: any` 断言。
 async function loadTodos(p: number) {
-  const j: any = await $fetch('/api/todo', { query: { page: p, pageSize, sort: '-id' } })
-  todos.value = j.data || []
-  total.value = j.total || 0
+  const res = await $fetch<ApiListResult<Todo>>('/api/todo', {
+    query: { page: p, pageSize, sort: '-id' },
+  })
+  todos.value = res.data || []
+  total.value = res.total || 0
   page.value = p
 }
 async function loadImages() {
-  const j: any = await $fetch('/api/image/list', { query: { pageSize: 12 } }).catch(() => null)
-  if (j) images.value = j.data || []
+  const res = await $fetch<ApiListResult<ImageItem>>('/api/image/list', {
+    query: { pageSize: 12 },
+  }).catch(() => null)
+  if (res) images.value = res.data || []
 }
 async function loadCap() {
-  const j: any = await $fetch('/api/captcha').catch(() => null)
-  if (j) cap.value = j.data
+  const res = await $fetch<ApiResult<Captcha>>('/api/captcha').catch(() => null)
+  if (res) cap.value = res.data
   code.value = ''
   capMsg.value = ''
 }
 async function loadTree() {
-  const j: any = await $fetch('/api/todo', { query: { tree: 1 } }).catch(() => null)
-  if (j) tree.value = j.data || []
+  const res = await $fetch<ApiListResult<TodoNode>>('/api/todo', {
+    query: { tree: 1 },
+  }).catch(() => null)
+  if (res) tree.value = res.data || []
 }
 
 onMounted(() => {
@@ -66,7 +76,7 @@ async function saveTodo(e: Event) {
   loadTodos(page.value)
   loadTree()
 }
-function startEdit(t: any) {
+function startEdit(t: Todo) {
   editing.value = t.id
   title.value = t.title
   parentId.value = String(t.parentId ?? 0)
@@ -93,11 +103,11 @@ async function upload(e: Event) {
 }
 async function verify() {
   if (!cap.value) return
-  const j: any = await $fetch('/api/captcha/verify', {
+  const res = await $fetch<ApiResult<CaptchaVerify>>('/api/captcha/verify', {
     method: 'POST',
     body: { captchaId: cap.value.captchaId, code: code.value },
   })
-  capMsg.value = j.data?.success ? '✅ 校验通过' : '❌ 验证码错误'
+  capMsg.value = res.data?.success ? '✅ 校验通过' : '❌ 验证码错误'
 }
 
 const totalPages = computed(() => Math.max(Math.ceil(total.value / pageSize), 1))

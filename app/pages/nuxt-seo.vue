@@ -61,7 +61,7 @@ useSeoMeta({
         </tbody>
       </table>
       <p class="mt-2 text-gray-500">📝 小结：useSeoMeta 在服务端组件调用即注入 head，SEO/社交分享卡片必备；比手动改 head 更安全（防重、自动合并）。<br>
-      📌 易错点：① 值用 ref/computed 包起来，改 ref.value 才会响应式更新（直接传字面量只是首屏一次性）；② og/twitter 字段名是 `ogTitle`/`twitterCard` 这种驼峰，不是 `og:title` 字符串键；③ useSeoMeta 自动合并去重，不再需要手动管 `<Head>`；④ 纯前端元信息演示，本分支不引 /api。</p>
+      📌 易错点：① 值用 ref/computed 包起来，改 ref.value 才会响应式更新（直接传字面量只是首屏一次性）；② og/twitter 字段名是 `ogTitle`/`twitterCard` 这种驼峰，不是 `og:title` 字符串键；③ useSeoMeta 自动合并去重，不再需要手动管 <code>&lt;Head&gt;</code>；④ 纯前端元信息演示，本分支不引 /api。</p>
     </details>
   </main>
 </template>

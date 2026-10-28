@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { ref } from 'vue'
 
 // ───────────────────────────────────────────────────────────
 // 从 Vue2 升级到 Vue3（国际化篇）· vue-i18n
@@ -14,14 +15,32 @@ const { t, locale } = useI18n()
 function toggle() {
   locale.value = locale.value === 'zh' ? 'en' : 'zh'
 }
-// 👉 练习：加一个带参数的文案 t('hello', {name})
+// 👉 练习：带参数的文案 t('helloName', { name }) —— messages 里用 {name} 占位
+const name = ref('World')
 </script>
 
 <template>
   <main class="mx-auto max-w-2xl space-y-4 p-6">
     <h1 class="text-2xl font-bold">多语言 vue-i18n · pages/vue-i18n.vue</h1>
-    <p class="text-sm">{{ t('hello') }}</p>
-    <button class="rounded bg-blue-600 px-3 py-1 text-white" @click="toggle">切到 {{ locale.value === 'zh' ? 'English' : '中文' }}</button>
+
+    <section class="rounded-2xl bg-white p-5 shadow dark:bg-zinc-900">
+      <h2 class="font-bold">① 基础文案 + 切语言</h2>
+      <p class="mt-1 text-sm opacity-70">当前语言：{{ locale }}</p>
+      <p class="mt-1 text-sm opacity-70">{{ t('hello') }}</p>
+      <button class="mt-3 rounded bg-blue-600 px-3 py-1 text-white" @click="toggle">
+        切到 {{ locale === 'zh' ? 'English' : '中文' }}
+      </button>
+    </section>
+
+    <section class="rounded-2xl bg-white p-5 shadow dark:bg-zinc-900">
+      <h2 class="font-bold">② 👉 参数化文案 t('helloName', { name })</h2>
+      <input
+        v-model="name"
+        class="mt-1 w-full rounded border px-2 py-1 text-sm dark:bg-zinc-800"
+        placeholder="输入名字"
+      />
+      <p class="mt-2 text-sm opacity-70">{{ t('helloName', { name: name }) }}</p>
+    </section>
 
     <details class="mt-6 rounded border p-3 text-sm">
       <summary class="cursor-pointer font-semibold">📚 Vue2 / Vue3 / React 三向对照 & 本项目小结</summary>

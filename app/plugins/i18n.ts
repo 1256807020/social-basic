@@ -6,8 +6,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     legacy: false,
     locale: 'zh',
     messages: {
-      zh: { hello: '你好，欢迎来到 Social Basic' },
-      en: { hello: 'Hello, welcome to Social Basic' },
+      zh: { hello: '你好，欢迎来到 Social Basic', helloName: '你好，{name}！' },
+      en: { hello: 'Hello, welcome to Social Basic', helloName: 'Hello, {name}!' },
     },
   })
   nuxtApp.vueApp.use(i18n)

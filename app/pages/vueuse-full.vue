@@ -20,8 +20,9 @@ import {
 import { computed, ref } from "vue";
 import type { ApiResult, HealthData } from "~/types/api";
 
-// 暗色模式（自动持久化到 localStorage，并切换 <html class="dark">）
+// 暗色模式：useDark 往 <html> 切 class="dark" 并持久化到 localStorage（还自动读系统偏好）
 const isDark = useDark();
+// 📌 三层暗色机制：① useDark 触发（给 <html> 加/去 class="dark"）→ ② tailwind.css 的 @custom-variant dark 把 dark: 工具类绑定到该 class → ③ 模板里 dark:bg-zinc-950 / dark:text-white 等才真正生效
 
 // 计数器（持久化，刷新不丢）
 const count = useStorage("vu-demo-count", 0);

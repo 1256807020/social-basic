@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+
 // ───────────────────────────────────────────────────────────
 // 从 Vue2 升级到 Vue3（国际化篇）· vue-i18n
 // · Vue2：vue-i18n v8，模板用 $t()；

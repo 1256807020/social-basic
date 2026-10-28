@@ -32,6 +32,14 @@
 /** 任意 JSON 记录：引擎动态字段的兜底类型 */
 export type JsonRecord = Record<string, unknown>
 
+/** /api/health 返回的 data 负载（env/uptime/collections/dataDir） */
+export interface HealthData {
+  env: string
+  uptime: number
+  collections: number
+  dataDir: string
+}
+
 /** 统一响应信封：{ code, data, msg }（见 server/lib/response.ts 的 ok()） */
 export interface ApiResult<T = unknown> {
   code: number

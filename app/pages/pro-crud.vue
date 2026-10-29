@@ -28,15 +28,18 @@ const sortKey = ref('order') // 当前多字段排序：-order / order / name / 
 const newName = ref('')
 const newParentId = ref<number | null>(null)
 
-// 🔧 固定写法：Nuxt 全局 $fetch 直接打 /api/*，无需自己拼 baseURL；统一取 .data（呼应 §0 信封铁律）
-async function api(path: string, opts: Record<string, unknown> = {}): Promise<unknown> {
-  const res = (await $fetch(`/api/${RES}${path}`, opts as any)) as { data: any }
+// 🔧 固定写法：Nuxt 全局 $fetch 直接打 /api/*，无需自己拼 baseURL；统一取 .data（呼应 §0 信封铁律）。
+// 🚫 禁 any：用泛型 + 取 $fetch 的第二个参数类型，避免 `as any`（见 §0 类型铁律）。
+type FetchOpts = Parameters<typeof $fetch>[1]
+interface ApiResult<T> { data: T }
+async function api<T>(path: string, opts: FetchOpts = {}): Promise<T> {
+  const res = await $fetch<ApiResult<T>>(`/api/${RES}${path}`, opts)
   return res.data
 }
 
 // 首次进入：集合为空则灌种子（不提交 data/*.json，符合 §16.4 铁律）
 async function ensureSeed() {
-  const c = (await api('/count')) as { total: number }
+  const c = await api<{ total: number }>('/count')
   if (c.total > 0) return
   const seed: Omit<Row, 'id'>[] = [
     { name: '前端', parentId: null, order: 1, status: 'active' },
@@ -54,11 +57,9 @@ async function refresh() {
   try {
     await ensureSeed()
     // 树：tree=1 + parentKey/childrenKey，引擎返回嵌套
-    const t = (await api(`?tree=1&parentKey=parentId&childrenKey=children&pageSize=1000`)) as { data: Row[] }
-    tree.value = t.data
+    tree.value = await api<Row[]>('?tree=1&parentKey=parentId&childrenKey=children&pageSize=1000')
     // 平铺 + 多字段排序
-    const l = (await api(`?sort=${sortKey.value}&pageSize=1000`)) as { data: Row[] }
-    list.value = l.data
+    list.value = await api<Row[]>(`?sort=${sortKey.value}&pageSize=1000`)
   } finally {
     loading.value = false
   }
@@ -103,7 +104,9 @@ async function onDrop(targetId: number) {
   const arr = [...list.value]
   const from = arr.findIndex((r) => r.id === dragId.value)
   const to = arr.findIndex((r) => r.id === targetId)
+  if (from === -1 || to === -1) return
   const [moved] = arr.splice(from, 1)
+  if (!moved) return
   arr.splice(to, 0, moved)
   // 重算 order，只发变化的那几条（增量，不整个覆盖集合）
   const updates = arr.map((r, i) => ({ id: r.id, order: i + 1 }))
@@ -126,6 +129,13 @@ function flatten(nodes: Row[], depth = 0): { row: Row; depth: number }[] {
         一个 JSON = 一套 CRUD，下面四种变体全部走 <code>/api/pro-crud-demo</code>，零自造接口。
       </p>
     </header>
+
+    <!-- 页首三段式项目分析卡片（① 视角/切入点 ② 实战定位 ③ 学习模式标记） -->
+    <section class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed">
+      <p><span class="font-semibold text-emerald-600">① 视角/切入点：</span>从「会写简单列表 CRUD」进阶到「生产里真正天天见的 CRUD 变体」（树 / 排序 / 拖拽 / 行内动作）。</p>
+      <p><span class="font-semibold text-sky-600">② 实战定位：</span>后台系统绕不开的增删改查增强 —— 基座引擎已原生支持 <code>tree=1</code> / <code>sort=f1,-f2</code> / <code>batch-update</code>，缺的是演示页。</p>
+      <p><span class="font-semibold text-amber-600">③ 学习模式：</span>🔧 固定写法 = 树 <code>tree=1+parentKey</code>、排序 <code>sort=f1,-f2</code>、拖拽 = 每条 <code>order</code> + <code>batch-update</code> 增量持久化；👉 练习点 = 把排序字段换成自己的业务字段。</p>
+    </section>
 
     <section class="space-y-3 rounded border p-4">
       <h2 class="text-lg font-semibold">① 树形 CRUD（tree=1）</h2>
